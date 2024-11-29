@@ -1,0 +1,62 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    steps: # 1. 코드 체크아웃
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      # 2. JDK 17 설치
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # 3. Gradle 의존성 캐시 설정
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 4. Gradle Wrapper 권한 부여
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      # 5. 빌드 및 테스트 실행
+      - name: Build and Test
+        run: ./gradlew build
+
+      # Amazon ECR 로그인
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+      # Amazon ECR 도커 이미지 푸쉬
+      - name: Tag and Push Docker Image to Amazon ECR
+        run: |
+          docker build --platform linux/amd64 -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0
+          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0
+
+
+    #CI 완료후 CD 동작
+    CD:
+      needs: CI
+      runs-on: ubuntu-latest
+
+      steps:
+      # LAMBDA_NAME : 함수 이름, image-uri : push 한 이미지 이름
+      - name: Deploy Lambda Function
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.LAMBDA_NAME }} \
+            --image-uri ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0 \
+            --publish
