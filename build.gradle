@@ -45,8 +45,8 @@ task copyDependencies(type: Copy) {
 task zipLayer(type: Zip) {
     dependsOn copyDependencies // ZIP 작업이 의존성 복사 후 실행
     archiveFileName = 'my-java-layer.zip'
-    destinationDirectory = file("$buildDir/lambda-layer")
-    from("$buildDir/lambda-layer/java")
+    destinationDirectory = file("$buildDir")
+    from("$buildDir/lambda-layer")
 }
 
 test {
