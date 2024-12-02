@@ -42,6 +42,9 @@ jobs:
       - name: Build ZipLayer
         run: ./gradlew zipLayer
 
+      - name: 경로 확인
+        run: pwd
+
   #CI 완료후 CD 동작
   CD:
     needs: CI
@@ -57,7 +60,7 @@ jobs:
       - name: layer 생성
         run: |
           PUBLISH_OUTPUT=$(aws lambda publish-layer-version \
-            --layer-name my-java-layer \
+            --layer-name my-java-layer
             --description "Java libraries for Lambda functions" \
             --zip-file fileb://build/my-java-layer.zip \
             --compatible-runtimes java17 \
