@@ -70,7 +70,7 @@ jobs:
           aws lambda update-function-configuration \
           --function-name ${{ secrets.LAMBDA_NAME }} \
           --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:my-java-layer:$LAYER_VERSION \
-          --no-cli-pager
+          >/dev/null 2>&1
           
 
       - name: Deploy Function CODE
@@ -79,4 +79,4 @@ jobs:
             --function-name ${{ secrets.LAMBDA_NAME }} \
             --zip-file fileb:///home/runner/work/FinalProject_5RE5_BE_WORKER/FinalProject_5RE5_BE_WORKER/build/libs/FinalProject_5RE5_BE_WORKER-1.0-SNAPSHOT.jar \
             --publish \
-            --no-cli-pager
+            >/dev/null 2>&1
