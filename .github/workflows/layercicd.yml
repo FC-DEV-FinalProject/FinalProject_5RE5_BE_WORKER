@@ -43,7 +43,7 @@ jobs:
         run: ./gradlew zipLayer
 
       - name: 경로 확인
-        run: pwd
+        run: ls /home/runner/work/FinalProject_5RE5_BE_WORKER/FinalProject_5RE5_BE_WORKER/build
 
   #CI 완료후 CD 동작
   CD:
