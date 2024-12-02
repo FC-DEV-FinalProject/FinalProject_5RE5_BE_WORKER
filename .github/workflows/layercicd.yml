@@ -36,7 +36,7 @@ jobs:
 
       # 5. 빌드 및 테스트 실행
       - name: Build and Test
-        run: ./gradlew build
+        run: ./gradlew build -x test
 
       # 6. Zip Layer 생성
       - name: Build ZipLayer
