@@ -35,6 +35,10 @@ jobs:
       - name: Build and Test
         run: ./gradlew build
 
+      # Zip Layer 생성
+      - name: Build ZipLayer
+        run: ./gradlew zipLayer
+
       # Amazon ECR 로그인
       - name: Login to Amazon ECR
         run: |
