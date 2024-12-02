@@ -41,6 +41,14 @@ task copyDependencies(type: Copy) {
     into "$buildDir/lambda-layer/java/lib"
 }
 
+// ZIP 작업: 복사 작업 후 ZIP 파일 생성
+task zipLayer(type: Zip) {
+    dependsOn copyDependencies // ZIP 작업이 의존성 복사 후 실행
+    archiveFileName = 'my-java-layer.zip'
+    destinationDirectory = file("$buildDir/lambda-layer")
+    from("$buildDir/lambda-layer/java")
+}
+
 test {
     useJUnitPlatform()
 }
