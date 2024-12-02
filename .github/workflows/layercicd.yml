@@ -17,6 +17,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      # jq 설치
+      - name: Install jq
+        run: sudo apt-get install jq -y
 
       # 3. Gradle 의존성 캐시 설정
       - name: Cache Gradle dependencies
@@ -45,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: AWS 로그인
-      - uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
