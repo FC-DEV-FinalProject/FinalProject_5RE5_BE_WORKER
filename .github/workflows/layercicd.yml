@@ -52,7 +52,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: layer 생성
+      - name: layer 생성 and 추가
         run: |
           PUBLISH_OUTPUT=$(aws lambda publish-layer-version \
             --layer-name my-java-layer \
@@ -65,12 +65,12 @@ jobs:
           LAYER_ARN="arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:my-java-layer:$LAYER_VERSION"
 
           echo "Layer Version: $LAYER_VERSION"
-
-      - name: layer 함수에 추가
-        run: |
+          
+          echo "Layer 추가 실행"
           aws lambda update-function-configuration \
           --function-name ${{ secrets.LAMBDA_NAME }} \
           --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:my-java-layer:$LAYER_VERSION
+          
 
       - name: Deploy Function CODE
         run: |
