@@ -4,7 +4,7 @@ on:
       - main
 
 jobs:
-  CI:
+  deploy:
     runs-on: ubuntu-latest
 
     steps: # 1. 코드 체크아웃
@@ -45,11 +45,6 @@ jobs:
       - name: 경로 확인
         run: ls /home/runner/work/FinalProject_5RE5_BE_WORKER/FinalProject_5RE5_BE_WORKER/build
 
-  #CI 완료후 CD 동작
-  CD:
-    needs: CI
-    runs-on: ubuntu-latest
-    steps:
       - name: AWS 로그인
         uses: aws-actions/configure-aws-credentials@v4
         with:
