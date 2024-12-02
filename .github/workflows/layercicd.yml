@@ -55,7 +55,7 @@ jobs:
       - name: layer 생성
         run: |
           PUBLISH_OUTPUT=$(aws lambda publish-layer-version \
-            --layer-name my-java-layer
+            --layer-name my-java-layer \
             --description "Java libraries for Lambda functions" \
             --zip-file fileb://home/runner/work/FinalProject_5RE5_BE_WORKER/FinalProject_5RE5_BE_WORKER/build/my-java-layer.zip \
             --compatible-runtimes java17 \
