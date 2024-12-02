@@ -35,10 +35,6 @@ jobs:
       - name: Build and Test
         run: ./gradlew build
 
-      # Zip Layer 생성
-      - name: Build ZipLayer
-        run: ./gradlew zipLayer
-
       # Amazon ECR 로그인
       - name: Login to Amazon ECR
         run: |
@@ -50,17 +46,16 @@ jobs:
           docker build --platform linux/amd64 -t ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0
           docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0
 
+  #CI 완료후 CD 동작
+  CD:
+    needs: CI
+    runs-on: ubuntu-latest
 
-    #CI 완료후 CD 동작
-    CD:
-      needs: CI
-      runs-on: ubuntu-latest
-
-      steps:
-      # LAMBDA_NAME : 함수 이름, image-uri : push 한 이미지 이름
-      - name: Deploy Lambda Function
-        run: |
-          aws lambda update-function-code \
-            --function-name ${{ secrets.LAMBDA_NAME }} \
-            --image-uri ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0 \
-            --publish
+    steps:
+    # LAMBDA_NAME : 함수 이름, image-uri : push 한 이미지 이름
+    - name: Deploy Lambda Function DOCKER
+      run: |
+        aws lambda update-function-code \
+          --function-name ${{ secrets.LAMBDA_NAME }} \
+          --image-uri ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.DOCKER_IMAGE }}:1.0 \
+          --publish
