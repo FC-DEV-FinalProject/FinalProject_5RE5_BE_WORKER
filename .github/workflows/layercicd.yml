@@ -46,7 +46,6 @@ jobs:
     steps:
       - name: AWS 로그인
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
       - uses: aws-actions/setup-sam@v2
       - uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -56,18 +55,23 @@ jobs:
 
       - name: layer 생성
         run: |
-          aws lambda publish-layer-version \
-          --layer-name my-java-layer \
-          --description "Java libraries for Lambda functions" \
-          --zip-file fileb://build/lambda-layer/my-java-layer.zip \
-          --compatible-runtimes java17 \
-          --region ${{ secrets.AWS_REGION }}
+          PUBLISH_OUTPUT=$(aws lambda publish-layer-version \
+            --layer-name my-java-layer \
+            --description "Java libraries for Lambda functions" \
+            --zip-file fileb://build/my-java-layer.zip \
+            --compatible-runtimes java17 \
+            --region ${{ secrets.AWS_REGION }})
+
+          LAYER_VERSION=$(echo $PUBLISH_OUTPUT | jq -r '.Version')
+          LAYER_ARN="arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:my-java-layer:$LAYER_VERSION"
+
+          echo "Layer Version: $LAYER_VERSION"
 
       - name: layer 함수에 추가
         run: |
           aws lambda update-function-configuration \
           --function-name ${{ secrets.LAMBDA_NAME }} \
-          --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:my-java-layer:1
+          --layers arn:aws:lambda:${{ secrets.AWS_REGION }}:${{ secrets.AWS_ACCOUNT_ID }}:layer:my-java-layer:$LAYER_VERSION
 
       - name: Deploy Function CODE
         run: |
