@@ -62,7 +62,7 @@ jobs:
           PUBLISH_OUTPUT=$(aws lambda publish-layer-version \
             --layer-name my-java-layer
             --description "Java libraries for Lambda functions" \
-            --zip-file fileb://build/my-java-layer.zip \
+            --zip-file fileb://home/runner/work/FinalProject_5RE5_BE_WORKER/FinalProject_5RE5_BE_WORKER/build/my-java-layer.zip \
             --compatible-runtimes java17 \
             --region ${{ secrets.AWS_REGION }})
 
@@ -81,5 +81,5 @@ jobs:
         run: |
           aws lambda update-function-code \
             --function-name ${{ secrets.LAMBDA_NAME }} \
-            --zip-file fileb://build/libs/FinalProject_5RE5_BE_WORKER-1.0-SNAPSHOT.jar \
+            --zip-file fileb://home/runner/work/FinalProject_5RE5_BE_WORKER/FinalProject_5RE5_BE_WORKER/build/libs/FinalProject_5RE5_BE_WORKER-1.0-SNAPSHOT.jar \
             --publish
