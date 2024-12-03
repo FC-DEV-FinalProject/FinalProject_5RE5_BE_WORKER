@@ -92,12 +92,43 @@ public class S3Service {
         return s3Client.getUrl(AWS_S3_BUKET_NAME, request.getKey()).toString();
     }
 
+    public String uploadSingleFile(AudioInfo info, String dirName) {
+        if (info == null) {
+            throw new IllegalArgumentException("파일이 없습니다");
+        }
+
+        // 키 정보 생성
+        String key = generateFileKey(dirName, info.getFileName());
+
+        // 객체 추가 요청 정보 초기화
+        PutObjectRequest request = creatPutObjectRequest(info, key);
+
+        // S3 버킷에 객체 추가
+        s3Client.putObject(request);
+
+        // 업로드한 파일의 S3 URL 반환
+        return s3Client.getUrl(AWS_S3_BUKET_NAME, request.getKey()).toString();
+    }
+
 
     public PutObjectRequest createPutObjectRequest(AudioInfo audioInfo) {
         try {
             return new PutObjectRequest(
                     AWS_S3_BUKET_NAME,
                     generateFileKey("concat/result", audioInfo.getFileName()),
+                    audioInfo.toInputStream(),
+                    createObjectMetadata(audioInfo)
+            );
+        } catch (Exception e) {
+            throw new IllegalArgumentException("입력 파라미터에 문제가 있습니다. 파일 업로드 불가!", e);
+        }
+    }
+
+    public PutObjectRequest creatPutObjectRequest(AudioInfo audioInfo, String key) {
+        try {
+            return new PutObjectRequest(
+                    AWS_S3_BUKET_NAME,
+                    key,
                     audioInfo.toInputStream(),
                     createObjectMetadata(audioInfo)
             );
