@@ -33,6 +33,9 @@ dependencies {
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
     implementation 'com.amazonaws:aws-java-sdk-s3'
     implementation 'com.amazonaws:aws-java-sdk-core:1.12.547'
+
+    // tts
+    implementation 'com.google.cloud:google-cloud-texttospeech:2.49.0'
 }
 
 //cd build/lambda-layer zip -r my-java-layer.zip java
