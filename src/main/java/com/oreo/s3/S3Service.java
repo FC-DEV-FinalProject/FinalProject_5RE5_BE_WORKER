@@ -22,9 +22,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class S3Service {
-    private static Dotenv dotenv = Dotenv.load();
     private static final Logger LOGGER = Logger.getLogger("com.oreo.vc.S3Service");
-    private static final String AWS_S3_BUKET_NAME = dotenv.get("AWS_S3_BUKET_NAME");
+    private static final String AWS_S3_BUKET_NAME = System.getenv("AWS_S3_BUKET_NAME");
     private final AmazonS3 s3Client;
     public S3Service() {
         s3Client = S3Config.amazonS3Client();
@@ -123,7 +122,7 @@ public class S3Service {
             LOGGER.log(Level.INFO,"[S3Service] audioInputStream 값 확인 : " + audioInputStream);
 
             byte[] bytes = AudioExtensionConverter.mp3ToWav(audioInputStream);
-            LOGGER.log(Level.INFO,"[S3Service] bytes 값 확인 : " + bytes);
+            LOGGER.log(Level.INFO,"[S3Service] bytes 값 확인 : " + bytes.length);
 
             return AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes));
         } catch (MalformedURLException e) {

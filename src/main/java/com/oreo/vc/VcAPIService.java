@@ -20,11 +20,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class VcAPIService {
-    private static Dotenv dotenv = Dotenv.load();
     private static final Logger LOGGER = Logger.getLogger("com.oreo.vc.VcApiService");
 
-    private static final String vcUrl = dotenv.get("VC_URL");
-    private static final String vcApiKey = dotenv.get("VC_APIKEY");
+    private static final String vcUrl = System.getenv("VC_URL");
+    private static final String vcApiKey = System.getenv("VC_APIKEY");
 
     private static S3Service s3service;
     private static final String REMOVE_BACKGROUND_NOISE = "remove_background_noise"; // 백그라운드 노이즈 제거 설정 키
