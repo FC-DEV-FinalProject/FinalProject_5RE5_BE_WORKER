@@ -5,7 +5,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import io.github.cdimascio.dotenv.Dotenv;
 
 public class S3Config {
     private static final String AWS_S3_ACCESSKEY = System.getenv("AWS_S3_ACCESSKEY");

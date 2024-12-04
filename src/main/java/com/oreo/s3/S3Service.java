@@ -6,7 +6,6 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.oreo.concat.concatenator.audio.AudioExtensionConverter;
 import com.oreo.concat.concatenator.model.AudioInfo;
 import com.oreo.s3.config.S3Config;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;

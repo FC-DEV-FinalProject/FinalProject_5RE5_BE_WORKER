@@ -4,7 +4,10 @@ package com.oreo.vc;
 import com.oreo.concat.concatenator.model.AudioInfo;
 import com.oreo.s3.S3Service;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
