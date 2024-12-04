@@ -8,7 +8,6 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
 public class S3Config {
     private static final String AWS_S3_ACCESSKEY = System.getenv("AWS_S3_ACCESSKEY");
-    private static final String AWS_S3_BUKET_NAME = System.getenv("AWS_S3_BUKET_NAME");
     private static final String AWS_S3_REGION = System.getenv("AWS_S3_REGION");
     private static final String AWS_S3_SECRETKEY = System.getenv("AWS_S3_SECRETKEY");
     public static AmazonS3 amazonS3Client() {
