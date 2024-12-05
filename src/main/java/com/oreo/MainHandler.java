@@ -86,8 +86,7 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
     private Object router(Message message) throws UnsupportedAudioFileException, IOException {
         log.log(Level.SEVERE, "[MainHandler] router - message : "+ message.toString());
         Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
-        ObjectMapper objectMapper = new ObjectMapper();
-        VcRequestDto vcApiRequest = objectMapper.readValue(message.body(), VcRequestDto.class);
+        VcRequestDto vcApiRequest = mapper.readValue(message.body(), VcRequestDto.class);
 
         log.log(Level.SEVERE, "[MainHandler] router - messageAttributes : "+ messageAttributes.toString());
         if (messageAttributes.containsKey("messageType")) {
