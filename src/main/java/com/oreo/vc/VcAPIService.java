@@ -2,8 +2,6 @@ package com.oreo.vc;
 
 
 import com.oreo.concat.concatenator.model.AudioInfo;
-import com.oreo.s3.S3Service;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -25,7 +23,6 @@ public class VcAPIService {
     private static final String vcUrl = System.getenv("VC_URL");
     private static final String vcApiKey = System.getenv("VC_APIKEY");
 
-    private static S3Service s3service;
     private static final String REMOVE_BACKGROUND_NOISE = "remove_background_noise"; // 백그라운드 노이즈 제거 설정 키
     private static final String RESPONSE_FILENAME = "response.wav"; // 응답 파일 이름
     private static final String RESPONSE_CONTENT_TYPE = "audio/wav"; // 응답 파일 MIME 타입
