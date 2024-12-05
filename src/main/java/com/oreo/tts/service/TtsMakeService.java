@@ -9,20 +9,23 @@ import com.oreo.tts.client.VoiceParamsGenerator;
 import com.oreo.tts.dto.TtsSentenceDto;
 import com.oreo.tts.dto.request.TtsMakeRequest;
 import com.oreo.tts.dto.response.TtsMakeResponse;
+import com.oreo.util.AudioPlayBackLength;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public class TtsMakeService {
     private static final GoogleTTSService googleTTSService = new GoogleTTSService();
     private static final S3Service s3Service = new S3Service();
+    private static final String EXTENSION = "wav";
+
     private static final Logger log = Logger.getLogger("com.oreo.MainHandler");
 
     // singleton
@@ -52,7 +55,7 @@ public class TtsMakeService {
             // TTS 결과 AudioInfo 객체 생성
             AudioInfo ttsAudioInfo = new AudioInfo(
                     audioInputStream,
-                    ttsMakeRequest.getFileName() + ".wav",
+                    ttsMakeRequest.getFileName() + EXTENSION,
                     audioInputStream.getFrameLength(),
                     "audio/wav"
             );
@@ -62,7 +65,10 @@ public class TtsMakeService {
 
             // TTS 생성 결과 응답
             return new TtsMakeResponse(
-                    ttsAudioInfo,
+                    ttsMakeRequest.getFileName(),
+                    EXTENSION,
+                    AudioPlayBackLength.calculateTargetFrames(audioInputStream),
+                    String.valueOf(ttsAudioInfo.getContentSize()),
                     s3Url
             );
         } catch (IOException | UnsupportedAudioFileException e) {
