@@ -53,10 +53,12 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
             .build();
         MessageContent requestMessage = MessageContent.fromMessage(message);
 
-        log.log(Level.INFO, "message : " + message.toString());
-        log.log(Level.INFO, "message.body() : " + message.body());
-        log.log(Level.INFO, "message.messageAttributes() " + message.messageAttributes().toString());
-        log.log(Level.INFO, "message.messageAttributes().get(\"messageType\") : " + message.messageAttributes().keySet());
+        message.messageAttributes().forEach((key, value) -> {
+            log.log(Level.INFO, "key : " + key);
+            log.log(Level.INFO, "value : " + value);
+        });
+
+        log.log(Level.INFO, "message.messageAttributes().get(\"messageType\").stringValue();" + message.messageAttributes().get("messageType").stringValue());
 
         Object routerResponse  = router(message);
         log.log(Level.INFO, "routerreponse: " + routerResponse.toString());
