@@ -86,6 +86,9 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
     private Object router(Message message) throws UnsupportedAudioFileException, IOException {
         log.log(Level.SEVERE, "[MainHandler] router - message : "+ message.toString());
         Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
+        ObjectMapper objectMapper = new ObjectMapper();
+        VcRequestDto vcApiRequest = objectMapper.readValue(message.body(), VcRequestDto.class);
+
         log.log(Level.SEVERE, "[MainHandler] router - messageAttributes : "+ messageAttributes.toString());
         if (messageAttributes.containsKey("messageType")) {
             String stringValue = messageAttributes.get("messageType").stringValue();
@@ -105,8 +108,8 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
             }
             if(stringValue.equals("VC_MAKE")){
                 //messageAttributes를 파싱해서 넣어줘야한다.
-                List<String> srcUrls = new ArrayList<>();
-                String trgUrl = "";
+                List<String> srcUrls = vcApiRequest.getSrcUrls();
+                String trgUrl = vcApiRequest.getTrgUrl();
                 VcRequestDto vcRequestDto = new VcRequestDto(srcUrls, trgUrl);//여기에 들어오는 값을 넣고
                 String trg = VcAPIResult.trg(vcRequestDto.getTrgUrl());
                 List<VcResultDto> result = VcAPIResult.result(vcRequestDto.getSrcUrls(), trg);
