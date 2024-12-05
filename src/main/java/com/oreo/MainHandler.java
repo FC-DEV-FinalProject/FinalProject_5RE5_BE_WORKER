@@ -19,6 +19,7 @@ import com.oreo.util.RequestSerializer;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -69,17 +70,30 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
     }
 
     private Object router(Message message) {
-        String messageType = message.attributes().get("messageType");
-
-        if (messageType.equals("TTS_MAKE")) {
-            VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
-            AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
-            TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
-            TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
-            TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
-            return ttsMakeResponse;
+        Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
+        if (messageAttributes.containsKey("messageType")) {
+            String stringValue = messageAttributes.get("messageType").stringValue();
+            if (stringValue.equals("TTS_MAKE")) {
+                VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
+                AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
+                TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
+                TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
+                TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
+                return ttsMakeResponse;
+            }
+            throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
         }
-        throw new IllegalArgumentException("Unknown message type: " + messageType);
+        throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
+
+//        if (messageType.equals("TTS_MAKE")) {
+//            VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
+//            AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
+//            TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
+//            TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
+//            TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
+//            return ttsMakeResponse;
+//        }
+//        throw new IllegalArgumentException("Unknown message type: " + messageType);
     }
 
 
