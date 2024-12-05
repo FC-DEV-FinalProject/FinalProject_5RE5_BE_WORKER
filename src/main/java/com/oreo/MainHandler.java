@@ -39,28 +39,6 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         AmazonSQSResponder sqs = AmazonSQSResponderClientBuilder.defaultClient();
         log.log(Level.SEVERE, "[handleRequest] sqs - "+ sqs);
 
-//        try {
-//            // sqs message를 들고 온다.
-//            for (SQSMessage sqsMessage : event.getRecords()) {
-//                log.log(Level.SEVERE, "[handleRequest] msg - " + sqsMessage);
-//
-//                // request Message 생성
-//                Message requestMessage = toMessage(sqsMessage);
-//
-//                // sendResponseMessage 를 하기 위해서 MessageContent로 변환
-//                MessageContent requestMessageContent = MessageContent.fromMessage(requestMessage);
-//
-//                // message를 처리한다.
-//                MessageContent reponseMessageContent = processMessage(requestMessage);
-//
-//                // sendResponseMessage 호출 => 이 결과가 다시 SQS에 들어간다.
-//                sqs.sendResponseMessage(requestMessageContent, reponseMessageContent);
-//            }
-//        } catch (UnsupportedAudioFileException | IOException e){
-//            log.log(Level.WARNING, "Error processing message", e);
-//            throw new RuntimeException(e);
-//        }
-
         // sqs message를 들고 온다.
         for (SQSMessage sqsMessage : event.getRecords()) {
             log.log(Level.SEVERE, "[handleRequest] msg - " + sqsMessage);
