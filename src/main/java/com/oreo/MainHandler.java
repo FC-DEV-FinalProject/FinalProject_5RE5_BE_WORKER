@@ -39,57 +39,65 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         AmazonSQSResponder sqs = AmazonSQSResponderClientBuilder.defaultClient();
         log.log(Level.SEVERE, "[handleRequest] sqs - "+ sqs);
 
-        try {
-            // sqs message를 들고 온다.
-            for (SQSMessage msg : event.getRecords()) {
-                log.log(Level.SEVERE, "[handleRequest] msg - " + msg);
+//        try {
+//            // sqs message를 들고 온다.
+//            for (SQSMessage sqsMessage : event.getRecords()) {
+//                log.log(Level.SEVERE, "[handleRequest] msg - " + sqsMessage);
+//
+//                // request Message 생성
+//                Message requestMessage = toMessage(sqsMessage);
+//
+//                // sendResponseMessage 를 하기 위해서 MessageContent로 변환
+//                MessageContent requestMessageContent = MessageContent.fromMessage(requestMessage);
+//
+//                // message를 처리한다.
+//                MessageContent reponseMessageContent = processMessage(requestMessage);
+//
+//                // sendResponseMessage 호출 => 이 결과가 다시 SQS에 들어간다.
+//                sqs.sendResponseMessage(requestMessageContent, reponseMessageContent);
+//            }
+//        } catch (UnsupportedAudioFileException | IOException e){
+//            log.log(Level.WARNING, "Error processing message", e);
+//            throw new RuntimeException(e);
+//        }
+
+        // sqs message를 들고 온다.
+        for (SQSMessage sqsMessage : event.getRecords()) {
+            log.log(Level.SEVERE, "[handleRequest] msg - " + sqsMessage);
+
+            // request Message 생성
+            Message requestMessage = toMessage(sqsMessage);
+
+            // sendResponseMessage 를 하기 위해서 MessageContent로 변환
+            MessageContent requestMessageContent = MessageContent.fromMessage(requestMessage);
+
+            try {
                 // message를 처리한다.
-                processMessage(sqs, msg, context);
+                MessageContent reponseMessageContent = processMessage(requestMessage);
+                // sendResponseMessage 호출 => 이 결과가 다시 SQS에 들어간다.
+                sqs.sendResponseMessage(requestMessageContent, reponseMessageContent);
+            } catch (UnsupportedAudioFileException | IOException e) {
+                log.log(Level.WARNING, "Error processing message", e);
+                MessageContent errorResponse = new MessageContent(e.getMessage());
+                sqs.sendResponseMessage(requestMessageContent, errorResponse);
+                throw new RuntimeException(e);
             }
-        } catch (UnsupportedAudioFileException e){
-            log.log(Level.WARNING, "Error processing message", e);
-            throw new RuntimeException(e);
-        } catch (IOException e){
-            log.log(Level.WARNING, "Error processing message", e);
-            throw new RuntimeException(e);
         }
 
-        return "Hello from Lambda!";
+        return null;
     }
 
-    private void processMessage(AmazonSQSResponder sqs, SQSMessage sqsMessage, Context context)
+    private MessageContent processMessage(Message requestMessage)
             throws UnsupportedAudioFileException, IOException {
-        log.log(Level.INFO, "context : " + context);
-
-        // SQS message를 Message로 변환
-        Message message = Message.builder()
-            .body(sqsMessage.getBody())
-            .messageAttributes(sqsMessage.getMessageAttributes().entrySet().stream().collect(
-                Collectors.toMap(Entry::getKey,
-                    entry -> toMessageAttributeValue(entry.getValue()))))
-            .build();
-
-        // sendResponseMessage 를 하기 위해서 MessageContent로 변환
-        MessageContent requestMessage = MessageContent.fromMessage(message);
-
-        // log message attributes
-        message.messageAttributes().forEach((key, value) -> {
-            log.log(Level.INFO, "key : " + key);
-            log.log(Level.INFO, "value : " + value);
-        });
-
-        log.log(Level.INFO, "message.messageAttributes().get(\"messageType\").stringValue();" + message.messageAttributes().get("messageType").stringValue());
+        log.log(Level.INFO, "message.messageAttributes().get(\"messageType\").stringValue();" + requestMessage.messageAttributes().get("messageType").stringValue());
 
         // router 실제 처리할 메서드
-        Object routerResponse  = router(message);
+        Object routerResponse  = router(requestMessage);
 
-        log.log(Level.INFO, "routerreponse: " + routerResponse.toString());
+        log.log(Level.INFO, "router reponse: " + routerResponse.toString());
 
         // response message 생성
-        MessageContent response = new MessageContent(sqsMessage.getBody());
-
-        // sendResponseMessage 호출 => 이 결과가
-        sqs.sendResponseMessage(requestMessage, response);
+        return new MessageContent(routerResponse.toString());
     }
 
     private Object router(Message message) throws UnsupportedAudioFileException, IOException {
@@ -120,6 +128,16 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
             throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
         }
         throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
+    }
+
+    private Message toMessage (SQSMessage sqsMessage) {
+        // SQS message를 Message로 변환
+        return Message.builder()
+            .body(sqsMessage.getBody())
+            .messageAttributes(sqsMessage.getMessageAttributes().entrySet().stream().collect(
+                Collectors.toMap(Entry::getKey,
+                    entry -> toMessageAttributeValue(entry.getValue()))))
+            .build();
     }
 
 
