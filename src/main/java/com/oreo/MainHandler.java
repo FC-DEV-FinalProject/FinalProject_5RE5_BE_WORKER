@@ -8,6 +8,7 @@ import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
 import com.amazonaws.services.sqs.AmazonSQSResponder;
 import com.amazonaws.services.sqs.AmazonSQSResponderClientBuilder;
 import com.amazonaws.services.sqs.MessageContent;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oreo.tts.dto.AudioOptionDto;
 import com.oreo.tts.dto.TtsSentenceDto;
@@ -16,14 +17,13 @@ import com.oreo.tts.dto.request.TtsMakeRequest;
 import com.oreo.tts.dto.response.TtsMakeResponse;
 import com.oreo.tts.service.TtsMakeService;
 import com.oreo.util.RequestSerializer;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
-
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 
 public class MainHandler implements RequestHandler<SQSEvent, String> {
 
@@ -36,14 +36,22 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         log.log(Level.SEVERE, "[handleRequest] evnet - "+ event+ " | context - " + context);
         AmazonSQSResponder sqs = AmazonSQSResponderClientBuilder.defaultClient();
         log.log(Level.SEVERE, "[handleRequest] sqs - "+ sqs);
+
+        try {
             for (SQSMessage msg : event.getRecords()) {
                 log.log(Level.SEVERE, "[handleRequest] msg - " + msg);
-                processMessage(sqs, msg, context);
+                    processMessage(sqs, msg, context);
             }
+        } catch (JsonProcessingException e) {
+            log.log(Level.WARNING, "Error processing message", e);
+            throw new RuntimeException(e);
+        }
+
         return "Hello from Lambda!";
     }
 
-    private void processMessage(AmazonSQSResponder sqs, SQSMessage sqsMessage, Context context){
+    private void processMessage(AmazonSQSResponder sqs, SQSMessage sqsMessage, Context context)
+        throws JsonProcessingException {
         context.getLogger();
         log.log(Level.INFO, "context : " + context);
         Message message = Message.builder()
@@ -69,15 +77,25 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         sqs.sendResponseMessage(requestMessage, response);
     }
 
-    private Object router(Message message) {
+    private Object router(Message message) throws JsonProcessingException {
         Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
         if (messageAttributes.containsKey("messageType")) {
+
+            // String -> DTO
+            Map<String, Object> messageBody = RequestSerializer.convertToMap(mapper, message.body());
+
             String stringValue = messageAttributes.get("messageType").stringValue();
             if (stringValue.equals("TTS_MAKE")) {
-                VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
-                AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
-                TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
-                TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
+
+//                VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
+//                AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
+//                TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
+
+                // 필요한 dto  Map<String, Object> -> TtsMakeRequest
+//                TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
+                TtsMakeRequest ttsMakeRequest = TtsMakeRequest.of(mapper, message.body());
+
+                // 생성 로직
                 TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
                 return ttsMakeResponse;
             }
