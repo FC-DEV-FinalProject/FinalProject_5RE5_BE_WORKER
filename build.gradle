@@ -21,28 +21,21 @@ repositories {
 }
 
 dependencies {
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core
-    implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.3'
 
-    // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events
-    implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version: '3.14.0'
 
     // https://mvnrepository.com/artifact/com.amazonaws/amazon-sqs-java-temporary-queues-client
     implementation group: 'com.amazonaws', name: 'amazon-sqs-java-temporary-queues-client', version: '2.0.1'
-
-    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
-    testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.9'
-
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
 
     //확장자 변경 라이브러리
     // https://mvnrepository.com/artifact/com.googlecode.soundlibs/mp3spi
     implementation 'com.googlecode.soundlibs:mp3spi:1.9.5-1'
     implementation 'com.googlecode.soundlibs:jlayer:1.0.1.4'
 
-    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
-    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core
+    implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.3'
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events
+    implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version: '3.14.0'
+
 
     implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
     implementation 'com.amazonaws:aws-java-sdk-s3'
