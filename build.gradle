@@ -11,14 +11,28 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-}
 
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-core
+    implementation group: 'com.amazonaws', name: 'aws-lambda-java-core', version: '1.2.3'
+
+    // https://mvnrepository.com/artifact/com.amazonaws/aws-lambda-java-events
+    implementation group: 'com.amazonaws', name: 'aws-lambda-java-events', version: '3.14.0'
+
+    // https://mvnrepository.com/artifact/com.amazonaws/amazon-sqs-java-temporary-queues-client
+    implementation group: 'com.amazonaws', name: 'amazon-sqs-java-temporary-queues-client', version: '2.0.1'
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.9'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 
