@@ -54,8 +54,8 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         MessageContent requestMessage = MessageContent.fromMessage(message);
 
         log.log(Level.INFO, "message : " + message.toString());
+        log.log(Level.INFO, "message.body() : " + message.body());
         log.log(Level.INFO, "message.messageAttributes() " + message.messageAttributes().toString());
-        log.log(Level.INFO, "messageType: " + message.attributes().get("messageType"));
 
         Object routerResponse  = router(message);
         log.log(Level.INFO, "routerreponse: " + routerResponse);
