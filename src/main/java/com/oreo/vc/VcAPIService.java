@@ -61,7 +61,7 @@ public class VcAPIService {
             }
             return trgId;
         } catch (Exception e) {
-
+            LOGGER.log(Level.WARNING,"[trgIdeCreate] trgId 생성 실패 : " + e);
             throw new RuntimeException("Failed to create trgId", e);
         }
     }
