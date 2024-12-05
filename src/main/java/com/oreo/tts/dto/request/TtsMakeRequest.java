@@ -1,5 +1,7 @@
 package com.oreo.tts.dto.request;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oreo.tts.dto.TtsSentenceDto;
 
 public class TtsMakeRequest {
@@ -35,5 +37,10 @@ public class TtsMakeRequest {
                 "ttsSentence=" + ttsSentence +
                 ", fileName='" + fileName + '\'' +
                 '}';
+    }
+
+    public static TtsMakeRequest of(ObjectMapper mapper, String messageBody)
+        throws JsonProcessingException {
+        return mapper.readValue(messageBody, TtsMakeRequest.class);
     }
 }
