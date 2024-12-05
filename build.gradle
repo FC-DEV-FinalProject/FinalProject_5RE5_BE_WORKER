@@ -41,8 +41,6 @@ dependencies {
     implementation 'com.amazonaws:aws-java-sdk-s3'
     implementation 'com.amazonaws:aws-java-sdk-core:1.12.547'
 
-    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
-
     // tts
     implementation 'com.google.cloud:google-cloud-texttospeech:2.49.0'
 }
