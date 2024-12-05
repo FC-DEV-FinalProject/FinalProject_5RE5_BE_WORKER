@@ -55,7 +55,7 @@ public class TtsMakeService {
             // TTS 결과 AudioInfo 객체 생성
             AudioInfo ttsAudioInfo = new AudioInfo(
                     audioInputStream,
-                    ttsMakeRequest.getFileName() + EXTENSION,
+                    ttsMakeRequest.getFileName() + "." + EXTENSION,
                     audioInputStream.getFrameLength(),
                     "audio/wav"
             );
