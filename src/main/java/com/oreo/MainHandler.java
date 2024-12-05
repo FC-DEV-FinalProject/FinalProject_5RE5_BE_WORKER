@@ -39,10 +39,9 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
     }
 
     private void processMessage(AmazonSQSResponder sqs, SQSMessage sqsMessage, Context context) {
-
-        System.out.println("sqsMessage.getBody() = " + sqsMessage.getBody());
-        System.out.println("context.getFunctionName() = " + context.getFunctionName());
         context.getLogger();
+
+        log.log(Level.INFO, "context : " + context);
 
         Message message = Message.builder()
             .body(sqsMessage.getBody())
@@ -53,7 +52,8 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
 
         MessageContent requestMessage = MessageContent.fromMessage(message);
 
-        System.out.println("message.getBody() = " + message.body());
+        log.log(Level.INFO, "message : " + message);
+
         Object routerResponse  = router(message);
         log.log(Level.INFO, "routerreponse: " + routerResponse);
 
@@ -61,11 +61,13 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         MessageContent response = new MessageContent(sqsMessage.getBody());
 
         sqs.sendResponseMessage(requestMessage, response);
-
     }
 
     private Object router(Message message) {
         String messageType = message.attributes().get("messageType");
+
+        log.log(Level.INFO, "messageType: " + messageType);
+        log.log(Level.INFO, "message attribute : " + message.attributes().toString());
 
         if (messageType.equals("TTS_MAKE")) {
 
