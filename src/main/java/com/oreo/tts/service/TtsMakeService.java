@@ -10,6 +10,8 @@ import com.oreo.tts.dto.TtsSentenceDto;
 import com.oreo.tts.dto.request.TtsMakeRequest;
 import com.oreo.tts.dto.response.TtsMakeResponse;
 
+import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -17,9 +19,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+
 public class TtsMakeService {
     private static final GoogleTTSService googleTTSService = new GoogleTTSService();
     private static final S3Service s3Service = new S3Service();
+    private static final Logger log = Logger.getLogger("com.oreo.MainHandler");
+
     // singleton
     private static final TtsMakeService instance = new TtsMakeService();
 
@@ -55,13 +60,13 @@ public class TtsMakeService {
             // TTS 결과 데이터 s3에 업로드
             String s3Url = s3Service.uploadSingleFile(ttsAudioInfo, "tts");
 
-
             // TTS 생성 결과 응답
             return new TtsMakeResponse(
                     ttsAudioInfo,
                     s3Url
             );
         } catch (IOException | UnsupportedAudioFileException e) {
+            log.log(Level.WARNING, "Error processing message", e);
             throw new RuntimeException("AudioInputStream 변환 중 예외 발생");
         }
     }

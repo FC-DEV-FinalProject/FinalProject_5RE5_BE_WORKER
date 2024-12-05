@@ -8,7 +8,6 @@ import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
 import com.amazonaws.services.sqs.AmazonSQSResponder;
 import com.amazonaws.services.sqs.AmazonSQSResponderClientBuilder;
 import com.amazonaws.services.sqs.MessageContent;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oreo.tts.dto.request.TtsMakeRequest;
 import com.oreo.tts.dto.response.TtsMakeResponse;
@@ -17,10 +16,6 @@ import com.oreo.util.RequestSerializer;
 import com.oreo.vc.VcAPIResult;
 import com.oreo.vc.VcRequestDto;
 import com.oreo.vc.VcResultDto;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
-
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +24,9 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 
 public class MainHandler implements RequestHandler<SQSEvent, String> {
 
