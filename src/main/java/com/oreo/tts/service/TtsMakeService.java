@@ -20,6 +20,13 @@ import java.io.InputStream;
 public class TtsMakeService {
     private static final GoogleTTSService googleTTSService = new GoogleTTSService();
     private static final S3Service s3Service = new S3Service();
+    // singleton
+    private static final TtsMakeService instance = new TtsMakeService();
+
+    private TtsMakeService () {}
+    public static TtsMakeService getInstance() {
+        return instance;
+    }
 
     public TtsMakeResponse makeTtsAndUploadS3(TtsMakeRequest ttsMakeRequest) {
         try{
