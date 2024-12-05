@@ -95,7 +95,6 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
     private Object router(Message message) throws UnsupportedAudioFileException, IOException {
         log.log(Level.SEVERE, "[MainHandler] router - message : "+ message.toString());
         Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
-        ObjectMapper objectMapper = new ObjectMapper();
 
         log.log(Level.SEVERE, "[MainHandler] router - messageAttributes : "+ messageAttributes.toString());
         if (messageAttributes.containsKey("messageType")) {
@@ -109,13 +108,13 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
                 return ttsMakeResponse;
             }
             if(stringValue.equals("VC_MAKE")){
-                VcRequestDto vcApiRequest = objectMapper.readValue(message.body(), VcRequestDto.class);
+                VcRequestDto vcApiRequest = mapper.readValue(message.body(), VcRequestDto.class);
                 //messageAttributes를 파싱해서 넣어줘야한다.
                 List<String> srcUrls = vcApiRequest.getSrcUrls();
                 String trgUrl = vcApiRequest.getTrgUrl();
                 VcRequestDto vcRequestDto = new VcRequestDto(srcUrls, trgUrl);//여기에 들어오는 값을 넣고
-                String trg = VcAPIResult.trg(vcRequestDto.getTrgUrl());
-                List<VcResultDto> result = VcAPIResult.result(vcRequestDto.getSrcUrls(), trg);
+//                String trg = VcAPIResult.trg(vcRequestDto.getTrgUrl());
+                List<VcResultDto> result = VcAPIResult.result(vcRequestDto.getSrcUrls(), "KDtAC9OBioGeVYSgPh0e");
                 return result;
             }
             throw new IllegalArgumentException("Unknown message type: " + messageAttributes);

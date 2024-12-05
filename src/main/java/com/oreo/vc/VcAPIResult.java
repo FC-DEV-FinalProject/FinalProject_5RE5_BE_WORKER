@@ -31,7 +31,7 @@ public class VcAPIResult {
         AudioInfo a = new AudioInfo(s3file, "trgfile.wav",s3file.getFrameLength(), "audio/wav");
         LOGGER.log(Level.INFO, "[vcServiceTest] a 요청값 확인 : " + a);
 
-        String s = vc.trgIdCreate(a);
+        String s = "KDtAC9OBioGeVYSgPh0e";
         LOGGER.log(Level.INFO, s);
 
         return s;
