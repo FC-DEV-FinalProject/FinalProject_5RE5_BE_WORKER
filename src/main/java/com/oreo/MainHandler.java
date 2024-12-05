@@ -10,20 +10,25 @@ import com.amazonaws.services.sqs.AmazonSQSResponderClientBuilder;
 import com.amazonaws.services.sqs.MessageContent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oreo.tts.dto.AudioOptionDto;
-import com.oreo.tts.dto.TtsSentenceDto;
-import com.oreo.tts.dto.VoiceDto;
 import com.oreo.tts.dto.request.TtsMakeRequest;
 import com.oreo.tts.dto.response.TtsMakeResponse;
 import com.oreo.tts.service.TtsMakeService;
 import com.oreo.util.RequestSerializer;
+import com.oreo.vc.VcAPIResult;
+import com.oreo.vc.VcRequestDto;
+import com.oreo.vc.VcResultDto;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
+
+import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import software.amazon.awssdk.services.sqs.model.Message;
-import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 
 public class MainHandler implements RequestHandler<SQSEvent, String> {
 
@@ -40,9 +45,12 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         try {
             for (SQSMessage msg : event.getRecords()) {
                 log.log(Level.SEVERE, "[handleRequest] msg - " + msg);
-                    processMessage(sqs, msg, context);
+                processMessage(sqs, msg, context);
             }
-        } catch (JsonProcessingException e) {
+        } catch (UnsupportedAudioFileException e){
+            log.log(Level.WARNING, "Error processing message", e);
+            throw new RuntimeException(e);
+        } catch (IOException e){
             log.log(Level.WARNING, "Error processing message", e);
             throw new RuntimeException(e);
         }
@@ -51,7 +59,7 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
     }
 
     private void processMessage(AmazonSQSResponder sqs, SQSMessage sqsMessage, Context context)
-        throws JsonProcessingException {
+            throws UnsupportedAudioFileException, IOException {
         context.getLogger();
         log.log(Level.INFO, "context : " + context);
         Message message = Message.builder()
@@ -77,13 +85,11 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         sqs.sendResponseMessage(requestMessage, response);
     }
 
-    private Object router(Message message) throws JsonProcessingException {
+    private Object router(Message message) throws UnsupportedAudioFileException, IOException {
+        log.log(Level.SEVERE, "[MainHandler] router - message : "+ message.toString());
         Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
+        log.log(Level.SEVERE, "[MainHandler] router - messageAttributes : "+ messageAttributes.toString());
         if (messageAttributes.containsKey("messageType")) {
-
-            // String -> DTO
-            Map<String, Object> messageBody = RequestSerializer.convertToMap(mapper, message.body());
-
             String stringValue = messageAttributes.get("messageType").stringValue();
             if (stringValue.equals("TTS_MAKE")) {
 
@@ -99,19 +105,18 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
                 TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
                 return ttsMakeResponse;
             }
+            if(stringValue.equals("VC_MAKE")){
+                //messageAttributes를 파싱해서 넣어줘야한다.
+                List<String> srcUrls = new ArrayList<>();
+                String trgUrl = "";
+                VcRequestDto vcRequestDto = new VcRequestDto(srcUrls, trgUrl);//여기에 들어오는 값을 넣고
+                String trg = VcAPIResult.trg(vcRequestDto.getTrgUrl());
+                List<VcResultDto> result = VcAPIResult.result(vcRequestDto.getSrcUrls(), trg);
+                return result;
+            }
             throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
         }
         throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
-
-//        if (messageType.equals("TTS_MAKE")) {
-//            VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
-//            AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
-//            TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
-//            TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
-//            TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
-//            return ttsMakeResponse;
-//        }
-//        throw new IllegalArgumentException("Unknown message type: " + messageType);
     }
 
 
