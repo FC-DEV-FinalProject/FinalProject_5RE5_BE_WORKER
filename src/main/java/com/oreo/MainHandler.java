@@ -121,8 +121,10 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
                 List<String> srcUrls = vcApiRequest.getSrcUrls();
                 String trgUrl = vcApiRequest.getTrgUrl();
                 VcRequestDto vcRequestDto = new VcRequestDto(srcUrls, trgUrl);//여기에 들어오는 값을 넣고
+
 //                String trg = VcAPIResult.trg(vcRequestDto.getTrgUrl());
                 List<VcResultDto> result = VcAPIResult.result(vcRequestDto.getSrcUrls(), "KDtAC9OBioGeVYSgPh0e");
+
                 return result;
             }
             throw new IllegalArgumentException("Unknown message type: " + messageAttributes);
