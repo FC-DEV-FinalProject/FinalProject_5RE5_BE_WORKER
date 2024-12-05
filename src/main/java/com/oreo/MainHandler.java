@@ -17,7 +17,6 @@ import com.oreo.vc.VcAPIResult;
 import com.oreo.vc.VcRequestDto;
 import com.oreo.vc.VcResultDto;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -41,8 +40,10 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
         log.log(Level.SEVERE, "[handleRequest] sqs - "+ sqs);
 
         try {
+            // sqs message를 들고 온다.
             for (SQSMessage msg : event.getRecords()) {
                 log.log(Level.SEVERE, "[handleRequest] msg - " + msg);
+                // message를 처리한다.
                 processMessage(sqs, msg, context);
             }
         } catch (UnsupportedAudioFileException e){
@@ -58,16 +59,20 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
 
     private void processMessage(AmazonSQSResponder sqs, SQSMessage sqsMessage, Context context)
             throws UnsupportedAudioFileException, IOException {
-        context.getLogger();
         log.log(Level.INFO, "context : " + context);
+
+        // SQS message를 Message로 변환
         Message message = Message.builder()
             .body(sqsMessage.getBody())
             .messageAttributes(sqsMessage.getMessageAttributes().entrySet().stream().collect(
                 Collectors.toMap(Entry::getKey,
                     entry -> toMessageAttributeValue(entry.getValue()))))
             .build();
+
+        // sendResponseMessage 를 하기 위해서 MessageContent로 변환
         MessageContent requestMessage = MessageContent.fromMessage(message);
 
+        // log message attributes
         message.messageAttributes().forEach((key, value) -> {
             log.log(Level.INFO, "key : " + key);
             log.log(Level.INFO, "value : " + value);
@@ -75,30 +80,28 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
 
         log.log(Level.INFO, "message.messageAttributes().get(\"messageType\").stringValue();" + message.messageAttributes().get("messageType").stringValue());
 
+        // router 실제 처리할 메서드
         Object routerResponse  = router(message);
+
         log.log(Level.INFO, "routerreponse: " + routerResponse.toString());
 
+        // response message 생성
         MessageContent response = new MessageContent(sqsMessage.getBody());
 
+        // sendResponseMessage 호출 => 이 결과가
         sqs.sendResponseMessage(requestMessage, response);
     }
 
     private Object router(Message message) throws UnsupportedAudioFileException, IOException {
         log.log(Level.SEVERE, "[MainHandler] router - message : "+ message.toString());
         Map<String, MessageAttributeValue> messageAttributes = message.messageAttributes();
-        VcRequestDto vcApiRequest = mapper.readValue(message.body(), VcRequestDto.class);
+        ObjectMapper objectMapper = new ObjectMapper();
 
         log.log(Level.SEVERE, "[MainHandler] router - messageAttributes : "+ messageAttributes.toString());
         if (messageAttributes.containsKey("messageType")) {
             String stringValue = messageAttributes.get("messageType").stringValue();
             if (stringValue.equals("TTS_MAKE")) {
-
-//                VoiceDto voiceD = new VoiceDto("ko-KR", "ko-KR-Standard-C", "female");
-//                AudioOptionDto audioOptionD = new AudioOptionDto(1.0f, 0.0f, 100);
-//                TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
-
-                // 필요한 dto  Map<String, Object> -> TtsMakeRequest
-//                TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
+                // TTS 생성 요청
                 TtsMakeRequest ttsMakeRequest = TtsMakeRequest.of(mapper, message.body());
 
                 // 생성 로직
@@ -106,6 +109,7 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
                 return ttsMakeResponse;
             }
             if(stringValue.equals("VC_MAKE")){
+                VcRequestDto vcApiRequest = objectMapper.readValue(message.body(), VcRequestDto.class);
                 //messageAttributes를 파싱해서 넣어줘야한다.
                 List<String> srcUrls = vcApiRequest.getSrcUrls();
                 String trgUrl = vcApiRequest.getTrgUrl();
