@@ -16,14 +16,15 @@ import com.oreo.tts.dto.response.TtsMakeResponse;
 import com.oreo.tts.service.TtsMakeService;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
 
 public class MainHandler implements RequestHandler<SQSEvent, String> {
 
-    private static final Logger log = LoggerFactory.getLogger(MainHandler.class);
+    private static final Logger log = Logger.getLogger("com.oreo.MainHandler");
     private static final TtsMakeService ttsMakeService = TtsMakeService.getInstance();
 
     @Override
@@ -54,10 +55,9 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
 
         System.out.println("message.getBody() = " + message.body());
         Object routerResponse  = router(message);
-        log.info("routerreponse : {} ", routerResponse);
+        log.log(Level.INFO, "routerreponse: " + routerResponse);
 
-        log.info("messageType: {}", message.attributes().get("messageType"));
-
+        log.log(Level.INFO, "messageType: " + message.attributes().get("messageType"));
         MessageContent response = new MessageContent(sqsMessage.getBody());
 
         sqs.sendResponseMessage(requestMessage, response);
@@ -74,11 +74,11 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
             TtsSentenceDto ttsSentenceDto = new TtsSentenceDto("안녕하세요", voiceD, audioOptionD);
             TtsMakeRequest ttsMakeRequest = new TtsMakeRequest(ttsSentenceDto, "lambdaTest");
 
-            log.info("ttsMakeRequest : {} ", ttsMakeRequest);
 
+            log.log(Level.INFO, "ttsMakeRequest: " + ttsMakeRequest);
             TtsMakeResponse ttsMakeResponse = ttsMakeService.makeTtsAndUploadS3(ttsMakeRequest);
 
-            log.info("ttsMakeResponse : {} ", ttsMakeResponse);
+            log.log(Level.INFO, "ttsMakeResponse: " + ttsMakeResponse);
             return ttsMakeResponse;
         }
 
