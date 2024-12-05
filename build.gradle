@@ -1,6 +1,7 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '8.1.1' // Shadow 플러그인
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+
 }
 
 group = 'com.oreo'
@@ -34,17 +35,39 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    //확장자 변경 라이브러리
+    // https://mvnrepository.com/artifact/com.googlecode.soundlibs/mp3spi
+    implementation 'com.googlecode.soundlibs:mp3spi:1.9.5-1'
+    implementation 'com.googlecode.soundlibs:jlayer:1.0.1.4'
+
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.1'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.0'
+
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation 'com.amazonaws:aws-java-sdk-core:1.12.547'
+
+    implementation 'org.apache.httpcomponents:httpmime:4.5.13'
+
+    // tts
+    implementation 'com.google.cloud:google-cloud-texttospeech:2.49.0'
+}
+
+//cd build/lambda-layer zip -r my-java-layer.zip java
+task copyDependencies(type: Copy) {
+    from configurations.runtimeClasspath
+    into "$buildDir/lambda-layer/java/lib"
+}
+
+// ZIP 작업: 복사 작업 후 ZIP 파일 생성
+task zipLayer(type: Zip) {
+    dependsOn copyDependencies // ZIP 작업이 의존성 복사 후 실행
+    archiveFileName = 'my-java-layer.zip'
+    destinationDirectory = file("$buildDir")
+    from("$buildDir/lambda-layer")
 }
 
 test {
     useJUnitPlatform()
-}
-
-jar {
-    finalizedBy shadowJar
-    manifest {
-        attributes(
-                'Main-Class': 'com.oreo.Main'
-        )
-    }
 }
