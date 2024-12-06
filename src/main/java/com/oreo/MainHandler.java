@@ -74,8 +74,11 @@ public class MainHandler implements RequestHandler<SQSEvent, String> {
 
         log.log(Level.INFO, "router reponse: " + routerResponse.toString());
 
+        // 결과 객체 json 형태로 변환
+        String jsonResponse = mapper.writeValueAsString(routerResponse);
+
         // response message 생성
-        return new MessageContent(routerResponse.toString());
+        return new MessageContent(jsonResponse);
     }
 
     private Object router(Message message) throws UnsupportedAudioFileException, IOException {
