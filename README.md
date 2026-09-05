@@ -48,3 +48,6 @@ Event Source Mapping 을 사용하여 SQS 와 Lambda 를 연결하면, 서로 �
 이러한 경우에는 Event Bridge 를 통해서 Filtering 을 해야 하며, 이는 복잡한 설정이 필요합니다. 또한 해당 설정에 대한 비용이 발생할 수 있습니다. 
 
 그리하여 하나의 SQS 와 하나의 Lambda 함수로 구성하고 메시지의 내용으로 분기처리하는 것으로 설정하였습니다.
+
+
+<!-- Security scan triggered at 2026-09-05 07:44:23 -->
