@@ -51,3 +51,5 @@ Event Source Mapping 을 사용하여 SQS 와 Lambda 를 연결하면, 서로 �
 
 
 <!-- Security scan triggered at 2026-09-05 07:44:23 -->
+
+<!-- Security scan triggered at 2026-10-07 11:51:27 -->
